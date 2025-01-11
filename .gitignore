@@ -1,5 +1,7 @@
+/.pre-commit-config.yaml
+/dist
+/result
 /ghq
 /ghq.exe
-/dist
 .vscode
 .idea
