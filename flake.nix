@@ -7,6 +7,10 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,15 +32,18 @@
       perSystem =
         {
           config,
-          self',
-          inputs',
-          pkgs,
           system,
           ...
         }:
         let
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [
+              inputs.gomod2nix.overlays.default
+            ];
+          };
           version = inputs.self.shortRev or "development";
-          ghq = pkgs.buildGoModule {
+          ghq = pkgs.buildGoApplication {
             inherit version;
             pname = "ghq";
             pwd = ./.;
@@ -46,7 +53,6 @@
               "-w"
               "-X main.revision=${version}"
             ];
-            vendorHash = "sha256-jP2Ne/EhmE3tACY1+lHucgBt3VnT4gaQisE3/gVM5Ec=";
             meta = with pkgs.lib; {
               description = "Manage remote repository clones";
               homepage = "https://github.com/x-motemen/ghq";
